@@ -15,11 +15,11 @@
 //#include <MPU9250.h>
 
 int mission = 1;
-const int SYNCING = 1;
-const int CHECK_CROSSROAD = 2;
-const int MOVE_STRIGHT = 3;
-const int MOVE_RIGHT = 4;
-const int MOVE_LEFT = 5;
+const int MSN_SYNCING = 1;
+const int MSN_CHECK_CROSSROAD = 2;
+const int MSN_MOVE_STRIGHT = 3;
+const int MSN_MOVE_RIGHT = 4;
+const int MSN_MOVE_LEFT = 5;
 
 Servo myservo;
 
@@ -131,19 +131,19 @@ void setup() {
 
 void loop() {
 	switch (mission) {
-	case(SYNCING):
+	case(MSN_SYNCING):
 		syncingMaze();
 		break;
-	case(CHECK_CROSSROAD):
+	case(MSN_CHECK_CROSSROAD):
 
 		break;
-	case(MOVE_STRIGHT):
+	case(MSN_MOVE_STRIGHT):
 		moveStraight();
 		break;
-	case(MOVE_RIGHT):
+	case(MSN_MOVE_RIGHT):
 
 		break;
-	case(MOVE_LEFT):
+	case(MSN_MOVE_LEFT):
 
 		break;
 	}
