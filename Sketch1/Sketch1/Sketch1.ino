@@ -150,7 +150,7 @@ void loop() {
 }
 
 double angle() {
-	imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
+	imu.update( UPDATE_COMPASS);
 	magX = imu.calcMag(imu.mx);
 	magY = imu.calcMag(imu.my);
 
