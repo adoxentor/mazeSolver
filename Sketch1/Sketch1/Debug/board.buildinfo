@@ -285,6 +285,9 @@ serial.port=COM10
 serial.port.num=10
 extra.time.local=1522011676
 extra.time.utc=1522000876
+<<<<<<< HEAD
+>>>>>>> fc86bd8a90a4f3dde641a7f75d61607d4559c263
+=======
 >>>>>>> fc86bd8a90a4f3dde641a7f75d61607d4559c263
 extra.time.dst=10800
 extra.time.zone=-10800
@@ -324,10 +327,17 @@ PreProcessor.PrototypeCount=8
 vm.last.preproc.file.0.file=Sketch1.ino
 vm.last.preproc.file.0.offset=1
 <<<<<<< HEAD
+<<<<<<< HEAD
 vm.last.preproc.file.0.length=9059
 vm.last.preproc.file.0.linecount=310
 vm.last.preproc.file.0.linestart=0
 vm.last.preproc.file.0.lineend=310
+=======
+vm.last.preproc.file.0.length=9788
+vm.last.preproc.file.0.linecount=346
+vm.last.preproc.file.0.linestart=0
+vm.last.preproc.file.0.lineend=346
+>>>>>>> fc86bd8a90a4f3dde641a7f75d61607d4559c263
 =======
 vm.last.preproc.file.0.length=9788
 vm.last.preproc.file.0.linecount=346
