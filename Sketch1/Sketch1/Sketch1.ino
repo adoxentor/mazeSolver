@@ -13,7 +13,14 @@
 #include <SparkFunMPU9250-DMP.h>
 //#include <quaternionFilters.h>
 //#include <MPU9250.h>
-int mission = 0;
+
+int mission = 1;
+const int SYNCING = 1;
+const int CHECK_CROSSROAD = 2;
+const int MOVE_STRIGHT = 3;
+const int MOVE_RIGHT = 4;
+const int MOVE_LEFT = 5;
+
 Servo myservo;
 
 float maxMagX = 100000;
@@ -55,9 +62,7 @@ boolean synced = false;
 SoftwareSerial BTserial(10, 11);
 
 MPU9250_DMP imu;
-//SoftwareSerial Serial(10, 11);
 
-//begin aa
 void setup() {
 	myservo.attach(7);
 	BTserial.begin(9600);
@@ -124,113 +129,24 @@ void setup() {
 	imu.setCompassSampleRate(10); // Set mag rate to 10Hz
 }
 
-// the loop function runs over and over again until power down or reset
 void loop() {
-	// dataReady() checks to see if new accel/gyro data
-	// is available. It will return a boolean true or false
-	// (New magnetometer data cannot be checked, as the library
-	//  runs that sensor in single-conversion mode.)
+	switch (mission) {
+	case(SYNCING):
+		syncingMaze();
+		break;
+	case(CHECK_CROSSROAD):
 
-	//if (imu.dataReady())
-	//{
-	//	BTserial.println("Press 'S' to syncing the program");
-	//	if (BTserial.available() && BTserial.read() == 'S') {
-	//		BTserial.println("Syncing the program");
-	//		if (maxMagX == 100000) {
-	//			imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
-	//			maxMagX = imu.calcMag(imu.mx);
-	//			minMagX = imu.calcMag(imu.mx);
+		break;
+	case(MOVE_STRIGHT):
+		moveStraight();
+		break;
+	case(MOVE_RIGHT):
 
-	//			maxMagY = imu.calcMag(imu.my);
-	//			minMagY = imu.calcMag(imu.my);
+		break;
+	case(MOVE_LEFT):
 
-	//			maxMagZ = imu.calcMag(imu.mz);
-	//			minMagZ = imu.calcMag(imu.mz);
-	//		}
-	//		while (b) {
-	//			timer = millis() + 7000;
-	//			while (millis() < timer) {
-	//				imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
-	//				magX = imu.calcMag(imu.mx);
-	//				magY = imu.calcMag(imu.my);
-	//				magZ = imu.calcMag(imu.mz);
-
-	//				if (magX > maxMagX)
-	//					maxMagX = magX;
-	//				if (magX < minMagX)
-	//					minMagX = magX;
-	//				if (magY > maxMagY)
-	//					maxMagY = magY;
-	//				if (magY < minMagY)
-	//					minMagY = magY;
-	//				if (magZ > maxMagZ)
-	//					maxMagZ = magZ;
-	//				if (magZ < minMagZ)
-	//					minMagZ = magZ;
-
-	//				//BTserial.println(String(magX) + " ," + String(magY) + " ," + String(magZ));
-	//				//BTserial.println();
-
-	//				analogWrite(RMotorS, 120);
-	//				digitalWrite(RMotorF, HIGH);
-	//			}
-	//			digitalWrite(RMotorF, LOW);
-
-	//			//printIMUData();
-	//			delay(50);
-	//			BTserial.println();
-	//			BTserial.println();
-	//			BTserial.println();
-	//			BTserial.println();
-	//			BTserial.println("Max x: " + String(maxMagX) + ", Min x: " + String(minMagX) + ", Max y: " + String(maxMagY) + ", Min y: " + String(minMagY) + ", Max z: " + String(maxMagZ) + ", Min z: " + String(minMagZ));
-	//			b = false;
-	//		}
-	//		synced = true;
-	//	}
-	//	if (synced) {
-	//	}
-
-	//}
-	//else {
-	//	BTserial.println("Loading...");
-	//}
-	if (mission == 0) {
-		solveMaze();
+		break;
 	}
-
-	/*
-	myservo.write(45);
-	BTserial.println("Put the robot in the start of the maze, looking forword into the maze (parallel to the side wall). After you did it send 'G'");
-	while (1) {
-		if (BTserial.available() && BTserial.read() == 'G') {
-			while (1) {
-				//double upAngle = angle();
-				double firstDisRight = distance(outputUSRight, inputUSRight);
-				digitalWrite(RMotorF, HIGH);
-				digitalWrite(LMotorF, HIGH);
-				BTserial.println(firstDisRight);
-				if (firstDisRight > distance(outputUSRight, inputUSRight)) {
-					analogWrite(LMotorS, 110);
-					analogWrite(RMotorS, 90);
-				}
-				if (firstDisRight < distance(outputUSRight, inputUSRight)) {
-					analogWrite(RMotorS, 110);
-					analogWrite(LMotorS, 90);
-				}
-				if (firstDisRight == distance(outputUSRight, inputUSRight)) {
-					analogWrite(LMotorS, 90);
-					analogWrite(RMotorS, 90);
-				}
-				if (distance(outputUSLeft, inputUSLeft) < 5) {
-					analogWrite(LMotorS, 0);
-					analogWrite(RMotorS, 0);
-					BTserial.println("wallll");
-				}
-
-			}
-		}
-	}*/
-
 }
 
 double angle() {
@@ -246,8 +162,6 @@ double angle() {
 	//BTserial.println(String(angleNow));
 	return angleNow;
 }
-
-
 double distance(int outputUS, int inputUS, double avrDistance)
 {
 	digitalWrite(outputUS, LOW);
@@ -260,60 +174,125 @@ double distance(int outputUS, int inputUS, double avrDistance)
 	return avrDistance;
 }
 
-void solveMaze() {
+void syncingMaze() {
+	if (imu.dataReady())
+	{
+		BTserial.println("Press 'S' to syncing the program");
+		if (BTserial.available() && BTserial.read() == 'S') {
+			BTserial.println("Syncing the program");
+			if (maxMagX == 100000) {
+				imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
+				maxMagX = imu.calcMag(imu.mx);
+				minMagX = imu.calcMag(imu.mx);
+				maxMagY = imu.calcMag(imu.my);
+				minMagY = imu.calcMag(imu.my);
+				maxMagZ = imu.calcMag(imu.mz);
+				minMagZ = imu.calcMag(imu.mz);
+			}
+			while (b) {
+				timer = millis() + 7000;
+				while (millis() < timer) {
+					imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
+					magX = imu.calcMag(imu.mx);
+					magY = imu.calcMag(imu.my);
+					magZ = imu.calcMag(imu.mz);
+					if (magX > maxMagX)
+						maxMagX = magX;
+					if (magX < minMagX)
+						minMagX = magX;
+					if (magY > maxMagY)
+						maxMagY = magY;
+					if (magY < minMagY)
+						minMagY = magY;
+					if (magZ > maxMagZ)
+						maxMagZ = magZ;
+					if (magZ < minMagZ)
+						minMagZ = magZ;
+					//BTserial.println(String(magX) + " ," + String(magY) + " ," + String(magZ));
+					//BTserial.println();
+					analogWrite(RMotorS, 120);
+					digitalWrite(RMotorF, HIGH);
+				}
+				digitalWrite(RMotorF, LOW);
+				//printIMUData();
+				delay(50);
+				BTserial.println();
+				BTserial.println();
+				BTserial.println();
+				BTserial.println();
+				BTserial.println("Max x: " + String(maxMagX) + ", Min x: " + String(minMagX) + ", Max y: " + String(maxMagY) + ", Min y: " + String(minMagY) + ", Max z: " + String(maxMagZ) + ", Min z: " + String(minMagZ));
+				b = false;
+			}
+			synced = true;
+		}
+		if (synced) {
+		}
+	}
+	else {
+		BTserial.println("Loading...");
+	}
+}
+void moveStraight() {
 	myservo.write(45);
 	BTserial.println("Put the robot in the start of the maze, looking forword into the maze (parallel to the side wall). After you did it send 'G'");
 	while (1) {
 		if (BTserial.available() && BTserial.read() == 'G') {
-			double firstDisRight = 0;
-			for (int i = 0; i < 100; i++) {
-				firstDisRight = firstDisRight + distance(outputUSRight, inputUSRight, avrDistanceR);
-				firstDisRight = firstDisRight / 2;
-			}
-			//firstDisRight = firstDisRight / 100;
-			BTserial.println(firstDisRight);
 			digitalWrite(RMotorF, HIGH);
 			digitalWrite(LMotorF, HIGH);
-			while (1) {
-				//double upAngle = angle();
-				if (distance(outputUSRight, inputUSRight, avrDistanceR) > firstDisRight) {
-
-					analogWrite(LMotorS, 150);
-					analogWrite(RMotorS, 80);
-				}
-				if (distance(outputUSRight, inputUSRight, avrDistanceR) < firstDisRight) {
-					analogWrite(RMotorS, 130);
-					analogWrite(LMotorS, 80);
-				}
-				if (firstDisRight == distance(outputUSRight, inputUSRight, avrDistanceR)) {
-					analogWrite(LMotorS, 90);
-					analogWrite(RMotorS, 90);
-				}
-				if (distance(outputUSLeft, inputUSLeft, 0) < 5) {
-					double blockDis;
-					for (int i = 0; i < 10; i++) {
-						blockDis = distance(outputUSLeft, inputUSLeft, blockDis);
-						blockDis = blockDis / 2;
-					}
-					if (blockDis < 5) {
-						analogWrite(LMotorS, 0);
-						analogWrite(RMotorS, 0);
-						digitalWrite(RMotorF, LOW);
-						digitalWrite(LMotorF, LOW);
-						mission = 1;
-						break;
-					}
-
-				}
-
-			}
-		}
-		if (mission != 0) {
 			break;
+		}
+	}
+	while (1) {
+		//double upAngle = angle();
+		if (distance(outputUSRight, inputUSRight, avrDistanceR) > 5) {
+			if (distance(outputUSRight, inputUSRight, avrDistanceR) > 15) {
+				int farDis;
+				for (int i = 0; i < 10; i++) {
+					farDis = distance(outputUSRight, inputUSRight, 0);
+					farDis = farDis / 2;
+				}
+				if (farDis > 15) {
+					mission = 2;
+					break;
+				}
+			}
+			analogWrite(LMotorS, 150);
+			analogWrite(RMotorS, 80);
+		}
+		if (distance(outputUSRight, inputUSRight, avrDistanceR) < 5) {
+			analogWrite(RMotorS, 130);
+			analogWrite(LMotorS, 80);
+		}
+		if (5 == distance(outputUSRight, inputUSRight, avrDistanceR)) {
+			analogWrite(LMotorS, 90);
+			analogWrite(RMotorS, 90);
+		}
+		if (distance(outputUSLeft, inputUSLeft, 0) < 5) {
+			double blockDis;
+			for (int i = 0; i < 10; i++) {
+				blockDis = distance(outputUSLeft, inputUSLeft, blockDis);
+				blockDis = blockDis / 2;
+			}
+			if (blockDis < 5) {
+				analogWrite(LMotorS, 0);
+				analogWrite(RMotorS, 0);
+				digitalWrite(RMotorF, LOW);
+				digitalWrite(LMotorF, LOW);
+				mission = 2;
+				break;
+			}
+
 		}
 
 	}
+
+
 }
+
+
+
+
+
 
 void printIMUData(void)
 {
